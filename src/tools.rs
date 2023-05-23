@@ -1,8 +1,8 @@
 use actix_web::{http::header::ContentType, HttpRequest, HttpResponse, Responder};
 
-#[utoipa::path(get, path="/tools/hello",
+#[utoipa::path(get, path="/hello", context_path="/tools",
     responses(
-        (status = 200, description = "OK - should return 'Hello world!'", content_type="text/plain" ),
+        (status = OK, description = "OK - should return 'Hello world!'", content_type="text/plain" ),
     ),
     tag = "Tools"
 )]
@@ -10,9 +10,9 @@ pub async fn hello() -> impl Responder {
     "Hello world!"
 }
 
-#[utoipa::path(post, path="/tools/echo",
+#[utoipa::path(post, path="/echo", context_path="/tools",
     responses(
-        (status = 200, description = "OK - returns submitted text", content_type="text/plain"),
+        (status = OK, description = "OK - returns submitted text", content_type="text/plain"),
     ),
     tag = "Tools",
     request_body(content = String, description = "Any text content", content_type = "text/plain"),
@@ -23,10 +23,10 @@ pub async fn echo(req_body: String) -> impl Responder {
         .body(req_body)
 }
 
-#[utoipa::path(get, path="/tools/ip",
+#[utoipa::path(get, path="/ip", context_path="/tools",
     responses(
-        (status = 200, description = "OK - returns IP of requester", content_type="text/plain"),
-        (status = 422, description = "Unprocessable Entity - IP could not be determined", content_type="text/plain")
+        (status = OK, description = "OK - returns IP of requester", content_type="text/plain"),
+        (status = UNPROCESSABLE_ENTITY, description = "Unprocessable Entity - IP could not be determined", content_type="text/plain")
     ),
     tag = "Tools"
 )]

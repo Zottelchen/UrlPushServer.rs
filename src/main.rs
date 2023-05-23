@@ -1,11 +1,9 @@
 use actix_web::{web, App, HttpServer};
-use utoipa::{
-    openapi::schema::{},
-    IntoParams, OpenApi, PartialSchema, ToSchema,
-};
+use utoipa::OpenApi;
 use utoipa_swagger_ui::SwaggerUi;
 
 mod tools;
+mod urlserver;
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
@@ -38,6 +36,11 @@ async fn main() -> std::io::Result<()> {
                     .route("/hello", web::get().to(tools::hello))
                     .route("/echo", web::post().to(tools::echo))
                     .route("/ip", web::get().to(tools::ip)),
+            )
+            .service(
+                web::scope("/urls")
+                    .route("/get", web::get().to(urlserver::get))
+                    .route("/add", web::post().to(urlserver::add)),
             )
             .service(SwaggerUi::new("/{_:.*}").url("/api-docs/openapi.json", openapi.clone()))
     })
