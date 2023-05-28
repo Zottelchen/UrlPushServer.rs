@@ -1,4 +1,4 @@
-FROM rust:latest as builder
+FROM clux/muslrust:stable as builder
 
 ARG TARGETPLATFORM
 
