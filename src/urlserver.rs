@@ -1,10 +1,10 @@
-use actix_web::{web::Query, HttpResponse};
-use chrono::Utc;
+use actix_web::{web::Query, HttpResponse, cookie::time::format_description::well_known::Rfc3339};
 use lazy_static::lazy_static;
 use regex::Regex;
 use serde::Deserialize;
 use serde_json::Value;
 use std::collections::HashSet;
+use time::{OffsetDateTime};
 use utoipa::IntoParams;
 use webpage::{Webpage, WebpageOptions};
 
@@ -73,8 +73,8 @@ pub async fn add(urlpush: Query<UrlPush>) -> String {
             Webpage::from_url(url, WebpageOptions::default()).expect("Could not read from URL");
         let webpage = WebpageInfo {
             url: info.http.url.to_string(),
-            title: info.html.title.expect("REASON").to_string(),
-            push_time: Utc::now().to_rfc3339(),
+            title: info.html.title.unwrap_or("#NoTitle".to_string()).to_string(),
+            push_time: OffsetDateTime::now_utc().format(&Rfc3339).unwrap()
         };
 
         return_string.push_str(format!("{}\n", webpage.url).as_str());
