@@ -13,7 +13,7 @@ mod urlserver;
 async fn main() -> std::io::Result<()> {
     dotenv().ok();
     // Get address and say hello
-    let address: &str = &env::var("PS_ADDRESS").unwrap_or("127.0.0.1".to_string());
+    let address: &str = &env::var("PS_ADDRESS").unwrap_or("0.0.0.0".to_string());
     let port: u16 = env::var("PS_PORT")
         .unwrap_or("8080".to_string())
         .parse()
