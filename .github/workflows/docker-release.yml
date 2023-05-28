@@ -1,0 +1,31 @@
+name: Docker Build and Push
+
+on:
+  push:
+    branches:
+      - main
+
+env:
+  DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+  DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+  DOCKER_IMAGE_NAME: urlpushserver.rs
+  DOCKERHUB_USERNAME: zottelchen
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v2
+
+      - name: Login to Docker Hub
+        run: echo $DOCKER_PASSWORD | docker login --username $DOCKER_USERNAME --password-stdin
+
+      - name: Build and Push Docker Image
+        run: |
+          IMAGE_TAG=${GITHUB_SHA::8}
+          DOCKER_REPO=$DOCKERHUB_USERNAME/$DOCKER_IMAGE_NAME
+
+          docker build -t $DOCKER_REPO:$IMAGE_TAG .
+          docker push $DOCKER_REPO:$IMAGE_TAG
