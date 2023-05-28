@@ -1,5 +1,7 @@
 FROM rust:latest as builder
 
+ARG TARGETPLATFORM
+
 COPY . /app/
 WORKDIR /app/
 

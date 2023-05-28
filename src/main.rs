@@ -1,5 +1,6 @@
 use actix_web::{middleware::Logger, web, App, HttpServer};
 use dotenv::dotenv;
+use log::info;
 use pretty_env_logger;
 use std::env;
 use utoipa::OpenApi;
@@ -18,7 +19,7 @@ async fn main() -> std::io::Result<()> {
         .parse()
         .unwrap();
     pretty_env_logger::init_custom_env("PS_LOG_LEVEL");
-    println!("Starting server at http://{}:{}", address, port);
+    info!("Starting server at http://{}:{}", address, port);
 
     // Prepare Api Docs
     #[derive(OpenApi)]

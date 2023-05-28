@@ -1,10 +1,11 @@
-use actix_web::{web::Query, HttpResponse, cookie::time::format_description::well_known::Rfc3339};
+use actix_web::{cookie::time::format_description::well_known::Rfc3339, web::Query, HttpResponse};
 use lazy_static::lazy_static;
+use log::{debug, error};
 use regex::Regex;
 use serde::Deserialize;
 use serde_json::Value;
 use std::collections::HashSet;
-use time::{OffsetDateTime};
+use time::OffsetDateTime;
 use utoipa::IntoParams;
 use webpage::{Webpage, WebpageOptions};
 
@@ -21,14 +22,14 @@ fn read_pool_json(pool: &str) -> Value {
 
     // Check/read pool.json
     if poolfile_exists {
-        println!("Reading poolfile: {}", poolfile);
+        debug!("Reading poolfile: {}", poolfile);
         let json_string = {
             let text = std::fs::read_to_string(&poolfile).unwrap();
             serde_json::from_str::<Value>(&text).unwrap()
         };
         return json_string;
     } else {
-        println!("Creating poolfile: {}", poolfile);
+        debug!("Creating poolfile: {}", poolfile);
         let json_string = serde_json::json!({"unrequested":[], "requested":[]});
         return json_string;
     }
@@ -36,11 +37,11 @@ fn read_pool_json(pool: &str) -> Value {
 
 fn write_pool_json(json_str: &Value, pool: &String) {
     match std::fs::create_dir_all("urlpools/") {
-        Err(e) => println!("{:?}", e),
+        Err(e) => error!("{:?}", e),
         _ => (),
     }
     let poolfile = format!("urlpools/{}.json", pool);
-    println!("Writing poolfile: {}", poolfile);
+    debug!("Writing poolfile: {}", poolfile);
     std::fs::write(poolfile, serde_json::to_string_pretty(&json_str).unwrap()).unwrap();
 }
 
@@ -73,8 +74,12 @@ pub async fn add(urlpush: Query<UrlPush>) -> String {
             Webpage::from_url(url, WebpageOptions::default()).expect("Could not read from URL");
         let webpage = WebpageInfo {
             url: info.http.url.to_string(),
-            title: info.html.title.unwrap_or("#NoTitle".to_string()).to_string(),
-            push_time: OffsetDateTime::now_utc().format(&Rfc3339).unwrap()
+            title: info
+                .html
+                .title
+                .unwrap_or("#NoTitle".to_string())
+                .to_string(),
+            push_time: OffsetDateTime::now_utc().format(&Rfc3339).unwrap(),
         };
 
         return_string.push_str(format!("{}\n", webpage.url).as_str());

@@ -12,6 +12,7 @@ strip="debuginfo"
 actix-web = "4"
 dotenv = "0.15.0"
 lazy_static = "1.4.0"
+log = "0.4.18"
 pretty_env_logger = "0.5.0"
 regex = "1.8.3"
 serde = { version = "1.0.163", features = ["derive"] }
