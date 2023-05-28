@@ -1,9 +1,9 @@
 use actix_web::{middleware::Logger, web, App, HttpServer};
+use dotenv::dotenv;
 use pretty_env_logger;
 use std::env;
 use utoipa::OpenApi;
 use utoipa_swagger_ui::SwaggerUi;
-use dotenv::dotenv;
 
 mod tools;
 mod urlserver;
