@@ -1,4 +1,6 @@
-use actix_web::{http::header::ContentType, HttpRequest, HttpResponse, Responder};
+use actix_web::{http::header::ContentType, web::Query, HttpRequest, HttpResponse, Responder};
+use serde::Deserialize;
+use utoipa::IntoParams;
 
 #[utoipa::path(get, path="/hello", context_path="/tools",
     responses(
@@ -42,4 +44,22 @@ pub async fn ip(req: HttpRequest) -> HttpResponse {
     return HttpResponse::UnprocessableEntity()
         .content_type(ContentType::plaintext())
         .body("Unknown".to_string());
+}
+
+#[derive(Deserialize, IntoParams)]
+pub struct EchoQuery {
+    echoquery: String,
+}
+
+#[utoipa::path(get, path="/queryecho", context_path="/tools",
+    responses(
+        (status = OK, description = "OK - returns submitted queries", content_type="text/plain"),
+    ),
+    tag = "Tools",
+    params(
+            EchoQuery,
+    )
+)]
+pub async fn query_echo(eq: Query<EchoQuery>) -> String {
+    format!("{}", eq.echoquery)
 }

@@ -7,5 +7,13 @@ edition = "2021"
 
 [dependencies]
 actix-web = "4"
+chrono = "0.4.24"
+dotenv = "0.15.0"
+lazy_static = "1.4.0"
+pretty_env_logger = "0.5.0"
+regex = "1.8.3"
+serde = { version = "1.0.163", features = ["derive"] }
+serde_json = "1.0.96"
 utoipa = { version = "3", features = ["actix_extras"] }
 utoipa-swagger-ui = { version = "3", features = ["actix-web"] }
+webpage = "1.6.0"
