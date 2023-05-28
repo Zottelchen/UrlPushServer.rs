@@ -6,6 +6,6 @@ WORKDIR /app/
 RUN cargo build --release
 
 FROM scratch
-COPY --from=builder /app/target/release/url_push_server /
+COPY --from=builder /app/target/release/urlpushserver /
 EXPOSE 8080
-CMD ["/url_push_server"]
+ENTRYPOINT ["/urlpushserver"]
