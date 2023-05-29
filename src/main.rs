@@ -13,12 +13,12 @@ mod urlserver;
 async fn main() -> std::io::Result<()> {
     dotenv().ok();
     // Get address and say hello
-    let address: &str = &env::var("PS_ADDRESS").unwrap_or("0.0.0.0".to_string());
-    let port: u16 = env::var("PS_PORT")
+    let address: &str = &env::var("UPS_ADDRESS").unwrap_or("0.0.0.0".to_string());
+    let port: u16 = env::var("UPS_PORT")
         .unwrap_or("8080".to_string())
         .parse()
         .unwrap();
-    pretty_env_logger::init_custom_env("PS_LOG_LEVEL");
+    pretty_env_logger::init_custom_env("UPS_LOG_LEVEL");
     info!("Starting server at http://{}:{}", address, port);
 
     // Prepare Api Docs
