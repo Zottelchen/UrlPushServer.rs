@@ -1,4 +1,6 @@
-use actix_web::{cookie::time::format_description::well_known::Rfc3339, web::Query, HttpResponse};
+use actix_web::{
+    cookie::time::format_description::well_known::Rfc3339, web::Json, web::Query, HttpResponse,
+};
 use lazy_static::lazy_static;
 use log::{debug, error, info};
 use regex::Regex;
@@ -50,7 +52,11 @@ fn write_pool_json(json_str: &Value, pool: &String) {
 #[derive(Deserialize, IntoParams)]
 pub struct UrlPush {
     pool: String,
-    url_text: String,
+}
+
+#[derive(Deserialize)]
+pub struct UrlForm {
+    url: String,
 }
 
 struct WebpageInfo {
@@ -64,12 +70,15 @@ struct WebpageInfo {
         (status = OK, description = "OK - added URL(s) to pool", content_type="text/plain"),
     ),
     tag = "URL Server",
+    request_body(content_type="application/json", description="The text containing the URL to be pushed.", content=String,
+    example = json!({"url": "Look at this : https://example.com"})),
     params(UrlPush)
 )]
-pub async fn add(urlpush: Query<UrlPush>) -> String {
-    let urls = extract_urls(&urlpush.url_text);
-    let mut return_string = format!("Added to pool {}:\n", urlpush.pool);
-    let mut json_string = read_pool_json(&urlpush.pool);
+pub async fn add(query: Query<UrlPush>, form: Json<UrlForm>) -> String {
+    info!("URLPush: {}", form.url);
+    let urls = extract_urls(&form.url);
+    let mut return_string = format!("Added to pool {}:\n", query.pool);
+    let mut json_string = read_pool_json(&query.pool);
 
     for url in urls.iter() {
         let info =
@@ -90,7 +99,7 @@ pub async fn add(urlpush: Query<UrlPush>) -> String {
             .unwrap()
             .push(serde_json::json!({"url": webpage.url, "title": webpage.title, "push_time": webpage.push_time}));
     }
-    write_pool_json(&json_string, &urlpush.pool);
+    write_pool_json(&json_string, &query.pool);
 
     return return_string;
 }
@@ -110,7 +119,6 @@ pub struct UrlPull {
     params(UrlPull)
 )]
 pub async fn get(urlpull: Query<UrlPull>) -> HttpResponse {
-    //TODO: read urls from json_string["unrequested"] & move to requested
     let mut json_string: Value = read_pool_json(&urlpull.pool);
     let mut return_json: Value = serde_json::json!({"unrequested": [], "requested": []});
     let mut new_json: Value = serde_json::json!({"unrequested": [], "requested": []});
