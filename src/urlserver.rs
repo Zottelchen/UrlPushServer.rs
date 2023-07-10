@@ -49,6 +49,30 @@ fn write_pool_json(json_str: &Value, pool: &String) {
     std::fs::write(poolfile, serde_json::to_string_pretty(&json_str).unwrap()).unwrap();
 }
 
+async fn handle_pushed_urls(urls: HashSet<&str>, pool: String) {
+    let mut json_string = read_pool_json(&pool);
+
+    for url in urls.iter() {
+        let info =
+            Webpage::from_url(url, WebpageOptions::default()).expect("Could not read from URL");
+        let webpage = WebpageInfo {
+            url: info.http.url.to_string(),
+            title: info
+                .html
+                .title
+                .unwrap_or("#NoTitle".to_string())
+                .to_string(),
+            push_time: OffsetDateTime::now_utc().format(&Rfc3339).unwrap(),
+        };
+
+        json_string["unrequested"]
+            .as_array_mut()
+            .unwrap()
+            .push(serde_json::json!({"url": webpage.url, "title": webpage.title, "push_time": webpage.push_time}));
+    }
+    write_pool_json(&json_string, &pool);
+}
+
 #[derive(Deserialize, IntoParams)]
 pub struct UrlPush {
     pool: String,
@@ -75,31 +99,16 @@ struct WebpageInfo {
     params(UrlPush)
 )]
 pub async fn add(query: Query<UrlPush>, form: Json<UrlForm>) -> String {
-    info!("URLPush: {}", form.url);
-    let urls = extract_urls(&form.url);
+    let urls: HashSet<&str> = extract_urls(&form.url);
     let mut return_string = format!("Added to pool {}:\n", query.pool);
-    let mut json_string = read_pool_json(&query.pool);
 
     for url in urls.iter() {
-        let info =
-            Webpage::from_url(url, WebpageOptions::default()).expect("Could not read from URL");
-        let webpage = WebpageInfo {
-            url: info.http.url.to_string(),
-            title: info
-                .html
-                .title
-                .unwrap_or("#NoTitle".to_string())
-                .to_string(),
-            push_time: OffsetDateTime::now_utc().format(&Rfc3339).unwrap(),
-        };
-
-        return_string.push_str(format!("{}\n", webpage.url).as_str());
-        json_string["unrequested"]
-            .as_array_mut()
-            .unwrap()
-            .push(serde_json::json!({"url": webpage.url, "title": webpage.title, "push_time": webpage.push_time}));
+        return_string.push_str(format!("{}\n", url).as_str());
     }
-    write_pool_json(&json_string, &query.pool);
+
+    handle_pushed_urls(urls, query.pool.clone()).await;
+
+    info!("{}", return_string.replace("\n", " "));
 
     return return_string;
 }
