@@ -1,6 +1,6 @@
 use actix_web::{cookie::time::format_description::well_known::Rfc3339, web::Query, HttpResponse};
 use lazy_static::lazy_static;
-use log::{debug, error};
+use log::{debug, error, info};
 use regex::Regex;
 use serde::Deserialize;
 use serde_json::Value;
@@ -13,7 +13,9 @@ fn extract_urls(text: &str) -> HashSet<&str> {
     lazy_static! {
         static ref URL_REGEX: Regex = Regex::new(r#"(?i)\b((?:[a-z][\w-]+:(?:/{1,3}|[a-z0-9%])|www\d{0,3}[.]|[a-z0-9.\-]+[.][a-z]{2,4}/)(?:[^\s()<>]+|\(([^\s()<>]+|(\([^\s()<>]+\)))*\))+(?:\(([^\s()<>]+|(\([^\s()<>]+\)))*\)|[^\s`!()\[\]{};:'".,<>?«»“”‘’]))"#).unwrap();
     }
-    URL_REGEX.find_iter(text).map(|mat| mat.as_str()).collect()
+    let urls = URL_REGEX.find_iter(text).map(|mat| mat.as_str()).collect();
+    info!("{:?} ➡ Found URLs: {:?}", text, urls);
+    return urls;
 }
 
 fn read_pool_json(pool: &str) -> Value {

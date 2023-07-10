@@ -7,11 +7,11 @@
     {
       "type": "lldb",
       "request": "launch",
-      "name": "Debug executable 'url_push_server'",
+      "name": "Debug executable 'urlpushserver'",
       "cargo": {
-        "args": ["build", "--bin=url_push_server", "--package=url_push_server"],
+        "args": ["build", "--bin=urlpushserver", "--package=urlpushserver"],
         "filter": {
-          "name": "url_push_server",
+          "name": "urlpushserver",
           "kind": "bin"
         }
       },
@@ -21,13 +21,13 @@
     {
       "type": "lldb",
       "request": "launch",
-      "name": "Debug unit tests in executable 'url_push_server'",
+      "name": "Debug unit tests in executable 'urlpushserver'",
       "cargo": {
         "args": [
           "test",
           "--no-run",
-          "--bin=url_push_server",
-          "--package=url_push_server"
+          "--bin=urlpushserver",
+          "--package=urlpushserver"
         ],
         "filter": {
           "name": "url_push_server",
